@@ -153,7 +153,17 @@ print_success
 printf "  ${BOLD}What's installed:${NC}\n"
 printf "    • ${CYAN}supurr${NC} skill for Hyperliquid trading bots\n\n"
 
+# Install CLI if not present
+if ! command -v supurr &>/dev/null; then
+  info "Installing Supurr CLI..."
+  curl -fsSL https://cli.supurr.app/install | bash
+else
+  completed "Supurr CLI already installed: $(supurr --version 2>/dev/null || echo 'unknown')"
+fi
+
+printf "\n"
 warn "Restart your AI tool(s) to load the skill."
 printf "\n"
 info "Re-run anytime to update: ${CYAN}curl -fsSL https://cli.supurr.app/skill-install | bash${NC}"
 printf "\n"
+

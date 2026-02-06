@@ -21,7 +21,7 @@ curl -fsSL https://cli.supurr.app/skill-install | bash
 
 ## Also Install: Supurr CLI
 
-The skill teaches AI assistants to use the CLI. Install it separately:
+The skill teaches AI assistants to use the CLI. The skill installer automatically installs the CLI, but you can also install it manually:
 
 ```bash
 curl -fsSL https://cli.supurr.app/install | bash
