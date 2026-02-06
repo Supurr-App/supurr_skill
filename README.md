@@ -1,20 +1,31 @@
 # Supurr Skills
 
-> Agent skills for Hyperliquid trading bot automation
+> Backtest, deploy, and monitor grid trading bots on Hyperliquid. Supports Native Perps, Spot markets (USDC/USDH), and HIP-3 sub-DEXes.
 
 ## Installation
 
-```bash
-curl -fsSL https://cli.supurr.app/install | bash
-```
-
-Or via [skills.sh](https://skills.sh):
+### Option 1: skills.sh (Recommended)
 
 ```bash
 npx skills add Supurr-App/supurr_skill
 ```
 
-Supports Claude Code, Cursor, and OpenCode.
+Supports Claude Code, Cursor, OpenCode, Antigravity, and more.
+
+### Option 2: Direct Install
+
+```bash
+# Install AI skill to your tools
+curl -fsSL https://cli.supurr.app/skill-install | bash
+```
+
+## Also Install: Supurr CLI
+
+The skill teaches AI assistants to use the CLI. Install it separately:
+
+```bash
+curl -fsSL https://cli.supurr.app/install | bash
+```
 
 ## Available Skills
 
@@ -51,7 +62,8 @@ supurr_skill/
 ├── .claude-plugin/
 │   └── plugin.json       # Claude plugin manifest
 ├── scripts/
-│   └── install.sh        # Universal installer
+│   ├── install.sh        # CLI binary installer
+│   └── skill-install.sh  # AI skill installer
 ├── SKILL.md              # Main skill documentation
 └── README.md             # This file
 ```
