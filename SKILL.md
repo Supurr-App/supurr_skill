@@ -277,6 +277,8 @@ supurr config btc-grid.json   # Same
 supurr backtest -c <config> [options]
 ```
 
+> **Supported strategies**: Grid and DCA only. Arb (spot-perp arbitrage) backtesting is **not supported** — arb requires simultaneous dual-market execution that cannot be accurately simulated from single-asset price feeds.
+
 ### Options
 
 | Option                | Description                              |
