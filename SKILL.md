@@ -376,7 +376,9 @@ supurr deploy -c config.json -s HL:0x804e57d7baeca937d4b30d3cbe017f8d73c21f1b
 
 ---
 
-## 8. `supurr monitor` — View Active Bots
+## 8. `supurr monitor` — View User's Bots
+
+> **Updated in v0.2.8**: Now shows only the user's bots by default (requires `supurr init`). Use `--history` to include stopped bots.
 
 ### Syntax
 
@@ -386,18 +388,32 @@ supurr monitor [options]
 
 ### Options
 
-| Option                   | Description                    |
-| ------------------------ | ------------------------------ |
-| `-w, --wallet <address>` | Filter by wallet address       |
-| `--watch`                | Live mode (refreshes every 2s) |
+| Option                   | Description                          |
+| ------------------------ | ------------------------------------ |
+| `-w, --wallet <address>` | Filter by wallet address             |
+| `--watch`                | Live mode (refreshes every 2s)       |
+| `--history`              | Show all bots including stopped ones |
 
 ### Examples
 
 ```bash
-supurr monitor                 # List all active bots
+supurr monitor                 # Show only active bots for current user
+supurr monitor --history       # Show all bots (active + stopped)
 supurr monitor --watch         # Live monitoring (Ctrl+C to exit)
+supurr monitor --watch --history  # Live monitoring with history
 supurr monitor -w 0x1234...    # Filter by wallet
 ```
+
+### Behavior
+
+- **User-Specific**: Fetches bots for the address in `~/.supurr/credentials.json` (from `supurr init`)
+- **Default**: Shows only active bots (status = "running" or "starting")
+- **With `--history`**: Shows all bots including stopped ones
+- **Header**: Displays user address and sync delay: `🤖 Active Bots  │  User: 0x0ecba...  │  Sync delay: 0s`
+- **Trading Link**: Shows clickable visualization link at the end with correct market format:
+  - **Spot**: `KNTQ_USDH` (underscore separator)
+  - **Perp**: `BTC-USDC` (hyphen separator)
+  - **HIP-3**: `vntl:ANTHROPIC` (dex:base format)
 
 **Output Columns:**
 
@@ -406,6 +422,18 @@ supurr monitor -w 0x1234...    # Filter by wallet
 - **Market** — Trading pair (BTC-USDC, HYPE-USDH)
 - **Position** — Size + direction (L=Long, S=Short)
 - **PnL** — Total profit/loss
+
+**Example Output:**
+
+```
+🤖 Active Bots  │  User: 0x0ecba...  │  Sync delay: 0s
+
+ID   Type  Market       Position  PnL
+299  grid  KNTQ-USDH    0.5 L     +12.34
+300  arb   BTC-USDC     -         +5.67
+
+📊 Visualize: https://trade.supurr.app/trade/KNTQ_USDH?user_address=0x0ecba...
+```
 
 ---
 
