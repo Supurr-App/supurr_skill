@@ -23,8 +23,6 @@ description: Backtest, deploy, and monitor trading bots on Hyperliquid. Supports
 | `supurr backtest`      | Run historical simulation     |
 | `supurr deploy`        | Deploy bot to production      |
 | `supurr monitor`       | View active bots              |
-| `supurr inspect <id>`  | Deep dive into a specific bot |
-| `supurr account`       | Hyperliquid account dashboard |
 | `supurr history`       | View historical bot sessions  |
 | `supurr stop`          | Stop a running bot (signed)   |
 | `supurr prices`        | Debug price data              |
@@ -79,26 +77,6 @@ Supports three strategies: `grid`, `arb`, `dca`.
 supurr new grid [options]   # Grid trading
 supurr new arb [options]    # Spot-perp arbitrage
 supurr new dca [options]    # Dollar-cost averaging
-```
-
-### Unified Asset Format
-
-The `--asset` flag supports a **unified format** that auto-detects the market type from delimiters:
-
-| Format      | Delimiter   | Type              | Example             |
-| ----------- | ----------- | ----------------- | ------------------- |
-| `BTC`       | none        | Perp              | `--asset BTC`       |
-| `ETH-USDC`  | `-` (dash)  | Perp (with quote) | `--asset ETH-USDC`  |
-| `HYPE/USDC` | `/` (slash) | Spot              | `--asset HYPE/USDC` |
-| `HYPE/USDH` | `/` (slash) | Spot (non-USDC)   | `--asset HYPE/USDH` |
-| `hyna:BTC`  | `:` (colon) | HIP-3             | `--asset hyna:BTC`  |
-
-> The old flags (`--type`, `--quote`, `--dex`) **still work** and override the unified format when both are provided.
-
-```bash
-# These produce identical configs:
-supurr new grid --asset HYPE/USDC
-supurr new grid --asset HYPE --type spot --quote USDC
 ```
 
 ---
@@ -165,28 +143,9 @@ Generates a config that simultaneously trades the **spot** and **perp** legs of 
 
 #### Spot Resolution Logic
 
-Hyperliquid spot tokens for major assets use a `U`-prefix naming convention:
+Resolution order: try `U{ASSET}` first (e.g., `BTC` → `UBTC`) → fallback to exact name (e.g., `HYPE`, `TRUMP`) → error if neither exists.
 
-| You pass `--asset` | CLI resolves spot token | Spot pair  | Perp pair  |
-| ------------------ | ----------------------- | ---------- | ---------- |
-| `BTC`              | `UBTC`                  | UBTC/USDC  | BTC perp   |
-| `ETH`              | `UETH`                  | UETH/USDC  | ETH perp   |
-| `SOL`              | `USOL`                  | USOL/USDC  | SOL perp   |
-| `ENA`              | `UENA`                  | UENA/USDC  | ENA perp   |
-| `WLD`              | `UWLD`                  | UWLD/USDC  | WLD perp   |
-| `MON`              | `UMON`                  | UMON/USDC  | MON perp   |
-| `MEGA`             | `UMEGA`                 | UMEGA/USDC | MEGA perp  |
-| `ZEC`              | `UZEC`                  | UZEC/USDC  | ZEC perp   |
-| `XPL`              | `UXPL`                  | UXPL/USDC  | XPL perp   |
-| `PUMP`             | `UPUMP`                 | UPUMP/USDC | PUMP perp  |
-| `HYPE`             | `HYPE` (exact name)     | HYPE/USDC  | HYPE perp  |
-| `TRUMP`            | `TRUMP` (exact name)    | TRUMP/USDC | TRUMP perp |
-| `PURR`             | `PURR` (exact name)     | PURR/USDC  | PURR perp  |
-| `BERA`             | `BERA` (exact name)     | BERA/USDC  | BERA perp  |
-
-Resolution order: try `U{ASSET}` first → fallback to exact name → fail if neither exists.
-
-> **⚠️ U-prefix Hazard**: Do NOT pass asset names that already start with `U` (e.g., `UNIT`). The CLI will prepend another `U` and look for `UUNIT`, which doesn't exist. Always use the **perp ticker name** (e.g., `BTC`, not `UBTC`).
+> **⚠️ Always pass the perp ticker** (e.g., `BTC`, not `UBTC`). See full table → [references/arb-spot-resolution.md](references/arb-spot-resolution.md)
 
 #### Arb Options
 
@@ -400,7 +359,7 @@ supurr deploy -c config.json -s HL:0x804e57d7baeca937d4b30d3cbe017f8d73c21f1b
 
 ## 8. `supurr monitor` — View User's Bots
 
-> **Updated in v0.3.0**: Now shows only the user's bots by default (requires `supurr init`). Use `--history` to include stopped bots.
+> **Updated in v0.2.8**: Now shows only the user's bots by default (requires `supurr init`). Use `--history` to include stopped bots.
 
 ### Syntax
 
@@ -458,122 +417,6 @@ ID   Type  Market       Position  PnL
 ```
 
 ---
-
-## 8b. `supurr inspect <bot_id>` — Per-Bot Deep Dive
-
-Fetches bot metadata from the Bot API and enriches with live Hyperliquid data (position, orders, fills).
-
-### Syntax
-
-```bash
-supurr inspect <bot_id> [options]
-```
-
-### Options
-
-| Option        | Description                     |
-| ------------- | ------------------------------- |
-| `<bot_id>`    | **Required.** Bot ID to inspect |
-| `-w, --watch` | Live refresh every 3 seconds    |
-
-### Examples
-
-```bash
-supurr inspect 302            # Detailed view of bot 302
-supurr inspect 302 --watch    # Live refresh (Ctrl+C to exit)
-```
-
-### Output Sections
-
-```
-╔══════════════════════════════════════════════════════════════════╗
-║  🤖 Bot #302  │  arb  │  UETH/USDC  │  Running (2h 14m)       ║
-╚══════════════════════════════════════════════════════════════════╝
-
-📊 Position — direction, size, entry/mark price, leverage, liq price
-💰 PnL Breakdown — realized, unrealized, funding, total
-📋 Active Orders — all resting orders for this bot's market
-📜 Recent Fills — last trades with time, side, price, size, fee
-⚙️ Config Snapshot — strategy params, spreads, investment
-📊 Visualize — clickable trade.supurr.app link
-```
-
-### Data Sources
-
-| Section            | Source  | Endpoint                              |
-| ------------------ | ------- | ------------------------------------- |
-| Bot metadata & PnL | Bot API | `user_bots/{address}` → filter by ID  |
-| Position details   | HL Info | `clearinghouseState` → filter by coin |
-| Active orders      | HL Info | `frontendOpenOrders` → filter by coin |
-| Recent fills       | HL Info | `userFills` → filter by coin          |
-| Config             | Bot API | Included in bot response              |
-
-> **Sub-account awareness**: The bot's config stores the actual trading address. Inspect auto-uses this for HL queries.
-
----
-
-## 8c. `supurr account` — Hyperliquid Account Dashboard
-
-Displays perp margin, spot balances, positions, and optionally open orders, fills, and order history — all sourced directly from the Hyperliquid Info API.
-
-### Syntax
-
-```bash
-supurr account [options]
-```
-
-### Options
-
-| Option      | Description             |
-| ----------- | ----------------------- |
-| `--orders`  | Also show open orders   |
-| `--fills`   | Also show recent fills  |
-| `--history` | Also show order history |
-
-### Examples
-
-```bash
-supurr account                     # Overview: margin + positions + spot
-supurr account --orders            # Also show open orders
-supurr account --fills             # Also show recent fills
-supurr account --orders --fills    # Show orders and fills
-supurr account --history           # Show order history
-```
-
-### Default Output
-
-```
-╔══════════════════════════════════════════════════════╗
-║  💰 Account: 0x1234...abcd                           ║
-╚══════════════════════════════════════════════════════╝
-
-🏦 Perp Margin
-  Account Value: 12,450.00 USDC
-  Total Margin:   3,200.00 USDC
-  Available:      9,250.00 USDC
-
-📈 Positions (2)
-  Asset   │ Side  │ Size     │ Entry    │ Mark     │ UPnL
-  BTC     │ LONG  │ 0.0100   │ 97500.0  │ 98200.0  │ +7.00
-  ETH     │ SHORT │ 0.5000   │ 3100.0   │ 3085.0   │ +7.50
-
-💎 Spot Balances
-  Token   │ Balance      │ Value (USD)
-  USDC    │ 5,000.00     │ 5,000.00
-  HYPE    │ 120.50       │ 2,410.00
-```
-
-### Data Source
-
-All data comes directly from Hyperliquid Info API — no backend dependency:
-
-| Feature                 | HL Endpoint              |
-| ----------------------- | ------------------------ |
-| Perp margin & positions | `clearinghouseState`     |
-| Spot balances           | `spotClearinghouseState` |
-| Open orders             | `frontendOpenOrders`     |
-| Recent fills            | `userFills`              |
-| Order history           | `historicalOrders`       |
 
 ## 9. `supurr history` — View Bot History
 
@@ -641,81 +484,7 @@ supurr update    # Check and install latest version
 
 ## Complete Workflows
 
-### Workflow 1: Grid — Backtest → Deploy → Monitor
-
-```bash
-# 1. Initialize (first time only)
-supurr init --address 0x... --api-wallet 0x...
-
-# 2. Create config
-supurr new grid --asset BTC --levels 4 --start-price 88000 --end-price 92000 --investment 100 --leverage 20 --output btc-grid.json
-
-# 3. Backtest
-supurr backtest -c btc-grid.json -s 2026-01-28 -e 2026-02-01
-
-# 4. Deploy
-supurr deploy -c btc-grid.json
-
-# 5. Monitor
-supurr monitor --watch
-
-# 6. Stop when done
-supurr stop --id <bot_id>
-```
-
-### Workflow 2: Arb — Setup → Deploy → Monitor
-
-```bash
-# 1. Initialize
-supurr init --address 0x... --api-wallet 0x...
-
-# 2. Generate arb config (auto-resolves spot counterpart)
-supurr new arb --asset BTC --amount 200 --leverage 1 --output btc-arb.json
-
-# 3. Review the generated config
-supurr config btc-arb
-
-# 4. Ensure USDC balance in BOTH Spot and Perps wallets on Hyperliquid
-
-# 5. Deploy
-supurr deploy -c btc-arb.json
-
-# 6. Monitor
-supurr monitor --watch
-```
-
-### Workflow 3: DCA — Configure → Deploy
-
-```bash
-# 1. Create DCA config
-supurr new dca --asset BTC --trigger-price 95000 --base-order 0.001 --max-orders 5 --take-profit 0.02 --output btc-dca.json
-
-# 2. Deploy
-supurr deploy -c btc-dca.json
-
-# 3. Monitor
-supurr monitor --watch
-```
-
-### Workflow 4: Test All Market Types
-
-```bash
-# Native Perp
-supurr new grid --asset BTC --output native-btc.json
-supurr backtest -c native-btc.json -s 2026-01-28 -e 2026-02-01
-
-# USDC Spot
-supurr new grid --asset HYPE --type spot --quote USDC --output hype-usdc.json
-supurr backtest -c hype-usdc.json -s 2026-01-30 -e 2026-01-31
-
-# Non-USDC Spot
-supurr new grid --asset HYPE --type spot --quote USDH --output hype-usdh.json
-supurr backtest -c hype-usdh.json -s 2026-01-30 -e 2026-01-31
-
-# HIP-3
-supurr new grid --asset BTC --type hip3 --dex hyna --output hyna-btc.json
-supurr backtest -c hyna-btc.json -s 2026-01-28 -e 2026-02-01
-```
+See → [references/workflows.md](references/workflows.md)
 
 ---
 
@@ -736,31 +505,6 @@ supurr backtest -c hyna-btc.json -s 2026-01-28 -e 2026-02-01
 
 ---
 
-## Instrument Meta — Tick & Lot Size Formulas
-
-The CLI auto-computes `instrument_meta` from Hyperliquid's `szDecimals` (quantity precision). These are the **verified** formulas matching HL docs:
-
-| Market Type | `tick_decimals` formula  | `MAX_DECIMALS` | Example (BTC, szDec=5)     | Example (HYPE spot, szDec=2)    |
-| ----------- | ------------------------ | -------------- | -------------------------- | ------------------------------- |
-| **Perp**    | `max(6 - szDecimals, 0)` | 6              | `tick_size: "0.1"` (1 dec) | —                               |
-| **HIP-3**   | `max(6 - szDecimals, 0)` | 6              | `tick_size: "0.1"` (1 dec) | —                               |
-| **Spot**    | `max(8 - szDecimals, 0)` | 8              | —                          | `tick_size: "0.000001"` (6 dec) |
-
-**Derivations:**
-
-```
-tick_decimals = max(MAX_DECIMALS - szDecimals, 0)
-tick_size     = 10^(-tick_decimals)     # e.g., 10^(-1) = 0.1
-lot_size      = 10^(-szDecimals)         # e.g., 10^(-5) = 0.00001
-min_qty       = lot_size
-min_notional  = "10"                     # fixed for all markets
-```
-
-> [!CAUTION]
-> Spot uses `MAX_DECIMALS = 8`, not 6. Using the wrong constant will cause order rejections on low-priced spot tokens (e.g., KNTQ where szDecimals=0 → tick_decimals should be 8, not 6).
-
----
-
 ## API Endpoints Used
 
 | Purpose       | Endpoint                                      | Auth              |
@@ -776,97 +520,20 @@ min_notional  = "10"                     # fixed for all markets
 
 ## Troubleshooting
 
-| Issue                     | Solution                                                         |
-| ------------------------- | ---------------------------------------------------------------- |
-| "Config not found"        | Use `supurr configs` to list available configs                   |
-| "No credentials"          | Run `supurr init` first                                          |
-| "0 prices fetched"        | Check date range (data from 2026-01-28+)                         |
-| "API wallet not valid"    | Register API wallet on Hyperliquid first                         |
-| HIP-3 backtest fails      | Use format `--dex hyna --asset BTC`                              |
-| "No spot market found"    | Asset has no spot counterpart — arb not available for this asset |
-| Arb asset starts with `U` | Use the perp name (e.g., `BTC` not `UBTC`) — CLI adds `U` prefix |
+See → [references/troubleshooting.md](references/troubleshooting.md)
 
 ---
 
-# Appendix: Hyperliquid Info API
+# References
 
-> **Backtesting note**: This appendix is for live metadata and user state lookups. It is **not** a source of tick-level historical data for `supurr backtest`.
-
-> **Get address via**: `supurr whoami` — returns the configured wallet address.
-
-All endpoints use `POST https://api.hyperliquid.xyz/info` with `Content-Type: application/json`.
-
-## Market Data (No Address Required)
-
-| Query            | Request Body                         |
-| ---------------- | ------------------------------------ |
-| All Mid Prices   | `{"type": "allMids"}`                |
-| Sub-DEX Prices   | `{"type": "allMids", "dex": "hyna"}` |
-| Perp Metadata    | `{"type": "metaAndAssetCtxs"}`       |
-| Spot Metadata    | `{"type": "spotMeta"}`               |
-| L2 Order Book    | `{"type": "l2Book", "coin": "BTC"}`  |
-| List HIP-3 DEXes | `{"type": "perpDexs"}`               |
-
-## User Data (Address Required)
-
-| Query           | Request Body                                                                   |
-| --------------- | ------------------------------------------------------------------------------ |
-| Perp Positions  | `{"type": "clearinghouseState", "user": "0x..."}`                              |
-| Spot Balances   | `{"type": "spotClearinghouseState", "user": "0x..."}`                          |
-| Open Orders     | `{"type": "openOrders", "user": "0x..."}`                                      |
-| Order History   | `{"type": "historicalOrders", "user": "0x..."}`                                |
-| Trade Fills     | `{"type": "userFills", "user": "0x...", "aggregateByTime": true}`              |
-| Funding History | `{"type": "userFunding", "user": "0x...", "startTime": <ts>, "endTime": <ts>}` |
-| Sub-Accounts    | `{"type": "subAccounts", "user": "0x..."}`                                     |
-| Vault Details   | `{"type": "vaultDetails", "vaultAddress": "0x..."}`                            |
-
-## HIP-3 Sub-DEXes
-
-| DEX    | Quote | Assets                        |
-| ------ | ----- | ----------------------------- |
-| `hyna` | USDE  | Crypto perps (BTC, ETH, HYPE) |
-| `xyz`  | USDE  | Stocks (AAPL, TSLA, NVDA)     |
-| `vntl` | USDE  | AI/tech tokens                |
-| `km`   | USDT  | Kinetiq Markets               |
-| `cash` | USDC  | Tech stocks                   |
-
-## TypeScript Helper
-
-```typescript
-const HL = "https://api.hyperliquid.xyz/info";
-
-async function query<T>(body: object): Promise<T> {
-  const res = await fetch(HL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  return res.json();
-}
-
-// Examples
-const mids = await query({ type: "allMids" });
-const positions = await query({ type: "clearinghouseState", user: "0x..." });
-const spotBal = await query({ type: "spotClearinghouseState", user: "0x..." });
-const dexes = await query({ type: "perpDexs" });
-```
-
-## Common Hazards
-
-| Issue                   | Solution                                                                          |
-| ----------------------- | --------------------------------------------------------------------------------- |
-| `szDecimals` truncation | **Truncate** (floor) qty to `szDecimals` before submit — never round up           |
-| Spot tick_size ≠ perp   | Spot uses `MAX_DECIMALS=8`, perp/HIP-3 uses `6` — don't mix formulas              |
-| HIP-3 price prefix      | Sub-DEX prices keyed as `hyna:BTC`, not `BTC`                                     |
-| Sub-DEX asset index     | Use local index from DEX's `universe`, not global                                 |
-| Fill limits             | `userFills` max 2000 — paginate with time ranges                                  |
-| Slider/input precision  | Always floor (truncate) trade sizes, never round — rounding up can exceed balance |
-
----
+| Reference                                                | Contents                                               |
+| -------------------------------------------------------- | ------------------------------------------------------ |
+| [Hyperliquid Info API](references/hl-info-api.md)        | All `POST /info` endpoints, TypeScript helper, hazards |
+| [Arb Spot Resolution](references/arb-spot-resolution.md) | Full U-prefix table, resolution logic, edge cases      |
+| [Troubleshooting](references/troubleshooting.md)         | Common errors and fixes                                |
+| [Complete Workflows](references/workflows.md)            | End-to-end Grid, Arb, DCA, HIP-3 workflows             |
 
 ## Tutorials
-
-Step-by-step deployment guides with parameter selection advice and practical tips:
 
 - [Grid Bot Tutorial](tutorials/grid.md) — Range trading with buy/sell grids
 - [Arb Bot Tutorial](tutorials/arb.md) — Market-neutral spot-perp arbitrage

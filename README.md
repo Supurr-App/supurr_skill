@@ -7,7 +7,7 @@
 ### Option 1: skills.sh (Recommended)
 
 ```bash
-npx skills add Supurr-App/supurr_skill
+npx skills add Supurr-App/supurr-skill
 ```
 
 Supports Claude Code, Cursor, OpenCode, Antigravity, and more.
@@ -58,7 +58,7 @@ supurr monitor --watch
 ## Repository Structure
 
 ```
-supurr_skill/
+supurr-skill/
 ├── .claude-plugin/
 │   └── plugin.json       # Claude plugin manifest
 ├── scripts/

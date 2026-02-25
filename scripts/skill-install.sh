@@ -5,7 +5,7 @@
 # =============================================================================
 set -e
 
-REPO="https://github.com/Supurr-App/supurr_skill"
+REPO="https://github.com/Supurr-App/supurr-skill"
 
 # ANSI colors
 BOLD=$'\033[1m'
