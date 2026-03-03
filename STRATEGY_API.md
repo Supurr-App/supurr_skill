@@ -307,7 +307,7 @@ The bot reads a JSON config file. Your strategy maps to a section:
       "exchange": "hyperliquid",
       "type": "perp",
       "base": "BTC",
-      "index": 0
+      "index": 3
     }
   ],
   "wallet_address": "0x...",
@@ -317,6 +317,8 @@ The bot reads a JSON config file. Your strategy maps to a section:
   }
 }
 ```
+
+> **⚠️ IMPORTANT — Asset ID Required**: The `index` field is Hyperliquid's internal market index (e.g. `3` for BTC, `4` for ETH). You **must** know this value beforehand — it is **not** auto-resolved. Query `POST https://api.hyperliquid.xyz/info` with `{"type": "meta"}` to get the full `universe` array with all asset indices.
 
 ---
 
@@ -386,11 +388,23 @@ use strategy_mystrategy::{MyConfig, MyStrategy};
 
 > **That's it.** No need to modify the `BotConfig` struct — your strategy's JSON config section is automatically captured by `serde(flatten)` and deserialized by `custom_config()`.
 
-### 4. Build & run
+### 4. Build & backtest
 
 ```bash
+# Using supurr dev (recommended)
+supurr dev init              # First time only — clones the bot repo
+supurr dev build             # Compile with your strategy
+supurr dev backtest -c config-mystrategy.json -s 2026-01-28 -e 2026-02-01
+
+# Or manually
 cargo build --release
-./target/release/bot-cli --config config-mystrategy.json
+./target/release/bot --config config-mystrategy.json --prices prices.json
+```
+
+### 5. Run live
+
+```bash
+supurr dev run -c config-mystrategy.json
 ```
 
 ---

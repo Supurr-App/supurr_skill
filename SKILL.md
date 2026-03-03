@@ -11,22 +11,26 @@ description: Build, backtest, deploy, and monitor trading bots on Hyperliquid. A
 
 ## Quick Reference
 
-| Command                | Purpose                       |
-| ---------------------- | ----------------------------- |
-| `supurr init`          | Setup wallet credentials      |
-| `supurr whoami`        | Show current wallet           |
-| `supurr new grid`      | Generate grid strategy config |
-| `supurr new arb`       | Generate spot-perp arb config |
-| `supurr new dca`       | Generate DCA strategy config  |
-| `supurr configs`       | List saved configs            |
-| `supurr config <name>` | View config details           |
-| `supurr backtest`      | Run historical simulation     |
-| `supurr deploy`        | Deploy bot to production      |
-| `supurr monitor`       | View active bots              |
-| `supurr history`       | View historical bot sessions  |
-| `supurr stop`          | Stop a running bot (signed)   |
-| `supurr prices`        | Debug price data              |
-| `supurr update`        | Update CLI to latest          |
+| Command                | Purpose                         |
+| ---------------------- | ------------------------------- |
+| `supurr init`          | Setup wallet credentials        |
+| `supurr whoami`        | Show current wallet             |
+| `supurr new grid`      | Generate grid strategy config   |
+| `supurr new arb`       | Generate spot-perp arb config   |
+| `supurr new dca`       | Generate DCA strategy config    |
+| `supurr configs`       | List saved configs              |
+| `supurr config <name>` | View config details             |
+| `supurr backtest`      | Run historical simulation       |
+| `supurr deploy`        | Deploy bot to production        |
+| `supurr monitor`       | View active bots                |
+| `supurr history`       | View historical bot sessions    |
+| `supurr stop`          | Stop a running bot (signed)     |
+| `supurr prices`        | Debug price data                |
+| `supurr update`        | Update CLI to latest            |
+| `supurr dev init`      | Clone/update bot source for dev |
+| `supurr dev build`     | Build bot from source           |
+| `supurr dev run`       | Run dev-built bot               |
+| `supurr dev backtest`  | Backtest with dev-built engine  |
 
 ---
 
@@ -258,7 +262,9 @@ supurr config btc-grid.json   # Same
 supurr backtest -c <config> [options]
 ```
 
-> **Supported strategies**: Grid and DCA only. Arb (spot-perp arbitrage) backtesting is **not supported** — arb requires simultaneous dual-market execution that cannot be accurately simulated from single-asset price feeds.
+> **Supported strategies**: Grid, DCA, and custom strategies. Arb (spot-perp arbitrage) backtesting is **not supported** — arb requires simultaneous dual-market execution that cannot be accurately simulated from single-asset price feeds.
+
+> **⚠️ IMPORTANT — Asset ID Required**: Bot configs require a `market_index` (Hyperliquid's internal asset index, e.g. `3` for BTC). You **must** know this value beforehand. It is **not** auto-resolved by the CLI. To find it, query the Hyperliquid Info API: `POST https://api.hyperliquid.xyz/info` with `{"type": "meta"}` — the response `universe` array contains all assets with their indices. Alternatively, check the [Hyperliquid Info API reference](references/hl-info-api.md) for the exact endpoint.
 
 ### Options
 
@@ -294,6 +300,52 @@ supurr backtest -c btc-grid.json -s 2026-01-28 -e 2026-02-01 -o results.json
 > **Note**: Archive data available from 2026-01-28 onwards.
 >
 > **Important**: Backtests use Supurr's price archive (tick-level) or a user-provided prices file (`-p`). Do **not** use Hyperliquid Info API mids/candles for backtests; they don't provide tick-level historical data and will produce inaccurate results.
+
+---
+
+## 6b. `supurr dev` — Custom Strategy Development
+
+Development commands for building and testing custom strategies locally.
+
+```bash
+supurr dev init              # Clone/update bot source to ~/.supurr/bot-source/
+supurr dev build             # Build from source (cargo build --release)
+supurr dev run -c <config>   # Run locally-built bot
+supurr dev backtest -c <config> [options]  # Backtest with dev-built engine
+```
+
+### `supurr dev backtest`
+
+Identical to `supurr backtest` but uses the **dev-built engine** at `~/.supurr/bot-source/target/release/bot` instead of the installed binary. This lets you backtest **custom strategies** that you've added to the bot source.
+
+```bash
+# Backtest your custom strategy
+supurr dev backtest -c config-mystrategy.json -s 2026-01-28 -e 2026-02-01
+
+# With local prices
+supurr dev backtest -c config-mystrategy.json -p prices.json
+```
+
+All options from `supurr backtest` apply (`-s`, `-e`, `-p`, `--no-cache`, `-o`).
+
+> **Prerequisite**: Run `supurr dev build` first to compile your custom strategy into the dev binary.
+
+### Full Custom Strategy Workflow
+
+```bash
+# 1. Clone the bot source
+supurr dev init
+
+# 2. Add your strategy crate (see STRATEGY_API.md)
+# 3. Build with your strategy
+supurr dev build
+
+# 4. Backtest it
+supurr dev backtest -c config-mystrategy.json -s 2026-01-28 -e 2026-02-01
+
+# 5. Run live (paper or real)
+supurr dev run -c config-mystrategy.json
+```
 
 ---
 

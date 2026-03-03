@@ -81,3 +81,24 @@ supurr backtest -c hype-usdh.json -s 2026-01-30 -e 2026-01-31
 supurr new grid --asset BTC --type hip3 --dex hyna --output hyna-btc.json
 supurr backtest -c hyna-btc.json -s 2026-01-28 -e 2026-02-01
 ```
+
+---
+
+## Workflow 5: Custom Strategy — Dev → Backtest → Run
+
+```bash
+# 1. Initialize dev environment
+supurr dev init
+
+# 2. Add your strategy crate in ~/.supurr/bot-source/crates/strategy-mystrategy/
+#    (see STRATEGY_API.md for the 3-file pattern + wiring)
+
+# 3. Build with your custom strategy
+supurr dev build
+
+# 4. Backtest with historical data
+supurr dev backtest -c config-mystrategy.json -s 2026-01-28 -e 2026-02-01
+
+# 5. Run live with dev binary
+supurr dev run -c config-mystrategy.json
+```
