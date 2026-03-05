@@ -432,11 +432,12 @@ tracing = { workspace = true }
 
 ## API Reference Index
 
-| Document                                            | Content                                                          |
-| --------------------------------------------------- | ---------------------------------------------------------------- |
-| [strategy-trait.md](references/strategy-trait.md)   | `Strategy` + `StrategyContext` full API                          |
-| [events.md](references/events.md)                   | `Event` enum + all event structs                                 |
-| [commands.md](references/commands.md)               | `PlaceOrder`, `CancelOrder`, `CancelAll` + builders              |
-| [types.md](references/types.md)                     | All types: `Price`, `Qty`, `Market`, `Position`, `Balance`, etc. |
-| [hl-info-api.md](references/hl-info-api.md)         | Hyperliquid Info API (market data queries)                       |
-| [troubleshooting.md](references/troubleshooting.md) | Common issues and solutions                                      |
+| Document                                                      | Content                                                               |
+| ------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [strategy-trait.md](references/strategy-trait.md)             | `Strategy` + `StrategyContext` full API                               |
+| [indicator-strategies.md](references/indicator-strategies.md) | 3-layer pattern for indicator strategies (RSI, MACD, Bollinger, etc.) |
+| [events.md](references/events.md)                             | `Event` enum + all event structs                                      |
+| [commands.md](references/commands.md)                         | `PlaceOrder`, `CancelOrder`, `CancelAll` + builders                   |
+| [types.md](references/types.md)                               | All types: `Price`, `Qty`, `Market`, `Position`, `Balance`, etc.      |
+| [hl-info-api.md](references/hl-info-api.md)                   | Hyperliquid Info API (market data queries)                            |
+| [troubleshooting.md](references/troubleshooting.md)           | Common issues and solutions                                           |

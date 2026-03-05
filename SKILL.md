@@ -523,18 +523,19 @@ supurr update    # Check and install latest version
 
 ## Strategy Authoring References
 
-> **For LLMs**: To build a custom trading strategy, read [STRATEGY_API.md](STRATEGY_API.md) first — it has the full contract, 3-file pattern, and E2E build instructions. Then use the API references below for exact signatures. Copy `templates/strategy-template/` and study `examples/strategy-simple/`.
+> **For LLMs**: To build a custom trading strategy, read [STRATEGY_API.md](STRATEGY_API.md) first — it has the full contract, 3-file pattern, and E2E build instructions. **For indicator-based strategies** (RSI, MACD, Bollinger, EMA crossover, etc.), also read [indicator-strategies.md](references/indicator-strategies.md) for the 3-layer pattern (BarBuilder → Indicator → Phase Machine) and the `strategy-rsi` reference implementation. Then use the API references below for exact signatures.
 
-| Reference                                                | Contents                                                                                        |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| [Strategy Authoring API](STRATEGY_API.md)                | **START HERE** — Architecture, Strategy trait, StrategyContext, 3-file pattern, E2E build guide |
-| [Strategy Trait & Context](references/strategy-trait.md) | `Strategy` trait + `StrategyContext` method signatures (commands, timers, read-only state)      |
-| [Command Structs](references/commands.md)                | `PlaceOrder`, `CancelOrder`, `CancelAll`, `StopStrategy` — constructors + builders              |
-| [Event Enum](references/events.md)                       | All events: `Quote`, `OrderFilled`, `OrderCompleted`, `OrderCanceled`, `OrderRejected`, etc.    |
-| [Core Types](references/types.md)                        | All types: `Price`, `Qty`, `Market`, `Position`, `Balance`, `InstrumentMeta`, `LiveOrder`, etc. |
-| [Strategy Template](templates/strategy-template/)        | Scaffold crate with TODO markers — copy to start a new strategy                                 |
-| [Simple Strategy Example](examples/strategy-simple/)     | Complete working buy-low-sell-high strategy (~140 lines)                                        |
-| [Custom Strategy Tutorial](tutorials/custom-strategy.md) | End-to-end walkthrough: scaffold → implement → register → build → run                           |
+| Reference                                                  | Contents                                                                                        |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [Strategy Authoring API](STRATEGY_API.md)                  | **START HERE** — Architecture, Strategy trait, StrategyContext, 3-file pattern, E2E build guide |
+| [Indicator Strategies](references/indicator-strategies.md) | 3-layer pattern (BarBuilder → Indicator → Phase Machine) for RSI, MACD, Bollinger, EMA, etc.    |
+| [Strategy Trait & Context](references/strategy-trait.md)   | `Strategy` trait + `StrategyContext` method signatures (commands, timers, read-only state)      |
+| [Command Structs](references/commands.md)                  | `PlaceOrder`, `CancelOrder`, `CancelAll`, `StopStrategy` — constructors + builders              |
+| [Event Enum](references/events.md)                         | All events: `Quote`, `OrderFilled`, `OrderCompleted`, `OrderCanceled`, `OrderRejected`, etc.    |
+| [Core Types](references/types.md)                          | All types: `Price`, `Qty`, `Market`, `Position`, `Balance`, `InstrumentMeta`, `LiveOrder`, etc. |
+| [Strategy Template](templates/strategy-template/)          | Scaffold crate with TODO markers — copy to start a new strategy                                 |
+| [Simple Strategy Example](examples/strategy-simple/)       | Complete working buy-low-sell-high strategy (~140 lines)                                        |
+| [Custom Strategy Tutorial](tutorials/custom-strategy.md)   | End-to-end walkthrough: scaffold → implement → register → build → run                           |
 
 ---
 
