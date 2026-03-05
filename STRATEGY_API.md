@@ -349,7 +349,6 @@ members = [
     # ... existing crates
     "crates/strategy-mystrategy",        # ← add
 ]
-
 [workspace.dependencies]
 strategy-mystrategy = { path = "crates/strategy-mystrategy" }  # ← add
 ```
