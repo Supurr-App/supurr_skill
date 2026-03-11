@@ -1,6 +1,6 @@
 ---
 name: hyperliquid-supurr
-description: Build, backtest, deploy, and monitor trading bots on Hyperliquid. Author custom strategies in Rust, or use built-in Grid, DCA, and Spot-Perp Arbitrage strategies across Native Perps, Spot markets (USDC/USDH), and HIP-3 sub-DEXes.
+description: Build, backtest, deploy, and monitor trading bots on Hyperliquid. Author custom strategies in Rust, or use built-in Grid, DCA, and Spot-Perp Arbitrage strategies across Native Perps, Spot markets (USDC/USDH), HIP-3 sub-DEXes, and Prediction Markets (testnet).
 ---
 
 # Hyperliquid Supurr Skill — Complete Command Reference
@@ -89,11 +89,12 @@ supurr new dca [options]    # Dollar-cost averaging
 
 #### Market Types
 
-| Type     | Quote    | Requires  | Example                                 |
-| -------- | -------- | --------- | --------------------------------------- |
-| `native` | USDC     | —         | `--asset BTC`                           |
-| `spot`   | Variable | `--quote` | `--asset HYPE --type spot --quote USDC` |
-| `hip3`   | Per-DEX  | `--dex`   | `--asset BTC --type hip3 --dex hyna`    |
+| Type      | Quote    | Requires  | Example                                 |
+| --------- | -------- | --------- | --------------------------------------- |
+| `native`  | USDC     | —         | `--asset BTC`                           |
+| `spot`    | Variable | `--quote` | `--asset HYPE --type spot --quote USDC` |
+| `hip3`    | Per-DEX  | `--dex`   | `--asset BTC --type hip3 --dex hyna`    |
+| `outcome` | USDC     | Manual config | ⚠️ Testnet only — see [Prediction Markets tutorial](tutorials/prediction-markets.md) |
 
 #### Grid Options
 
@@ -544,4 +545,5 @@ supurr update    # Check and install latest version
 - [Grid Bot Tutorial](tutorials/grid.md) — Range trading with buy/sell grids
 - [Arb Bot Tutorial](tutorials/arb.md) — Market-neutral spot-perp arbitrage
 - [DCA Bot Tutorial](tutorials/dca.md) — Dollar-cost averaging with auto-restart
+- [Prediction Markets](tutorials/prediction-markets.md) — Trade binary outcomes on testnet ⚠️
 - [Build Your Own Strategy](tutorials/custom-strategy.md) — Custom strategy from scratch
