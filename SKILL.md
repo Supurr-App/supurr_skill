@@ -1,6 +1,6 @@
 ---
 name: hyperliquid-supurr
-description: Build, backtest, deploy, and monitor trading bots on Hyperliquid. Author custom strategies in Rust, or use built-in Grid, DCA, and Spot-Perp Arbitrage strategies across Native Perps, Spot markets (USDC/USDH), HIP-3 sub-DEXes, and Prediction Markets (testnet).
+description: Build, backtest, paper trade, deploy, and monitor trading bots on Hyperliquid. Author custom strategies in Rust, or use built-in Grid, DCA, and Spot-Perp Arbitrage strategies across Native Perps, Spot markets (USDC/USDH), HIP-3 sub-DEXes, and Prediction Markets (testnet).
 ---
 
 # Hyperliquid Supurr Skill — Complete Command Reference
@@ -21,12 +21,13 @@ description: Build, backtest, deploy, and monitor trading bots on Hyperliquid. A
 | `supurr configs`       | List saved configs              |
 | `supurr config <name>` | View config details             |
 | `supurr backtest`      | Run historical simulation       |
+| `supurr paper`         | Paper trade (real quotes, sim fills) |
 | `supurr deploy`        | Deploy bot to production        |
 | `supurr monitor`       | View active bots                |
 | `supurr history`       | View historical bot sessions    |
 | `supurr stop`          | Stop a running bot (signed)     |
 | `supurr prices`        | Debug price data                |
-| `supurr update`        | Update CLI to latest            |
+| `supurr update`        | Update CLI, skill, and bot source |
 | `supurr dev init`      | Clone/update bot source for dev |
 | `supurr dev build`     | Build bot from source           |
 | `supurr dev run`       | Run dev-built bot               |
@@ -304,6 +305,63 @@ supurr backtest -c btc-grid.json -s 2026-01-28 -e 2026-02-01 -o results.json
 
 ---
 
+## 6a. `supurr paper` — Paper Trading
+
+Run any strategy with **real market quotes** but **simulated fills**. No real orders are placed on the exchange.
+
+Uses the same isolated-margin simulation engine as `supurr backtest`, including:
+- Per-position margin reservation and liquidation detection
+- Configurable leverage, fee rates, and starting balance
+- Real-time equity, unrealized PnL, and position tracking
+
+### Syntax
+
+```bash
+supurr paper -c <config> [--debug]
+```
+
+### Options
+
+| Option                | Description                              |
+| --------------------- | ---------------------------------------- |
+| `-c, --config <path>` | **Required.** Config file (name or path) |
+| `-d, --debug`         | Enable debug engine logs (RUST_LOG=debug)|
+
+### Examples
+
+```bash
+# By config name (looks in ~/.supurr/configs/)
+supurr paper -c my-grid-bot
+
+# By file path
+supurr paper -c ./config-v2-grid-perp.json
+
+# With debug logging
+supurr paper -c my-grid-bot --debug
+```
+
+### Simulation Config (optional)
+
+Add a top-level `simulation` block to your config JSON to control paper trading assumptions:
+
+```json
+{
+  "simulation": {
+    "starting_balance_usdc": "10000",
+    "fee_rate": "0.00025"
+  }
+}
+```
+
+| Field | Default | Description |
+|---|---|---|
+| `starting_balance_usdc` | `"10000"` | Starting USDC balance |
+| `fee_rate` | `"0.00025"` | Fee rate per fill (0.025% = taker) |
+
+> **Ctrl+C** to stop paper trading cleanly. The engine cancels all open orders on shutdown.
+
+---
+
 ## 6b. `supurr dev` — Custom Strategy Development
 
 Development commands for building and testing custom strategies locally.
@@ -495,11 +553,19 @@ supurr prices -a HYPE -s 2026-01-28      # From specific date
 
 ---
 
-## 12. `supurr update` — Self-Update
+## 12. `supurr update` — Update All Components
 
 ```bash
-supurr update    # Check and install latest version
+supurr update    # Updates CLI, AI skill, and bot source
 ```
+
+Runs three independent steps (one failing won't block others):
+
+| Step | What | How |
+|---|---|---|
+| 1. CLI binary | Downloads latest from `cli.supurr.app` | Install script (same as `curl \| bash`) |
+| 2. AI skill | Pulls latest skill files | `npx skills add Supurr-App/Hyperliquid-Supurr-Skill` |
+| 3. Bot source | Git pull in `~/.supurr/bot-source/` | Only if previously cloned via `supurr dev init` |
 
 ---
 

@@ -1,6 +1,6 @@
 # Complete Workflows
 
-## Workflow 1: Grid — Backtest → Deploy → Monitor
+## Workflow 1: Grid — Backtest → Paper → Deploy → Monitor
 
 ```bash
 # 1. Initialize (first time only)
@@ -12,13 +12,16 @@ supurr new grid --asset BTC --levels 4 --start-price 88000 --end-price 92000 --i
 # 3. Backtest
 supurr backtest -c btc-grid.json -s 2026-01-28 -e 2026-02-01
 
-# 4. Deploy
+# 4. Paper trade (real quotes, simulated fills)
+supurr paper -c btc-grid.json
+
+# 5. Deploy
 supurr deploy -c btc-grid.json
 
-# 5. Monitor
+# 6. Monitor
 supurr monitor --watch
 
-# 6. Stop when done
+# 7. Stop when done
 supurr stop --id <bot_id>
 ```
 
