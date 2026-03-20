@@ -64,6 +64,16 @@ supurr init --force
 | `--address <address>` | Wallet address (0x...)         |
 | `--api-wallet <key>`  | API wallet private key         |
 
+### Runtime Credential Resolution (v0.3.5+)
+
+The bot binary resolves credentials at **runtime** from `~/.supurr/credentials.json`, not from the strategy config file. This means:
+
+- **Wallet switching is instant** — run `supurr init --address 0x... --api-wallet 0x... --force` to change the active wallet. The running bot resolves the new credentials on next startup.
+- **Config files are wallet-agnostic** — strategy configs (grid, arb, dca) no longer contain wallet credentials. The same config can be used across different wallets.
+- **Credential priority**: `~/.supurr/credentials.json` > environment variables (`SUPURR_WALLET_ADDRESS`, `SUPURR_API_WALLET_KEY`) > config file fields (legacy, deprecated).
+
+> **For deployed agents**: The `/activate` command in Telegram triggers `supurr init --address ... --api-wallet ... --force` on the remote FastClaw instance, switching the active wallet without redeploying.
+
 ---
 
 ## 2. `supurr whoami` — Show Identity
@@ -573,6 +583,7 @@ Runs three independent steps (one failing won't block others):
 
 - **Workflows**: See → [references/workflows.md](references/workflows.md)
 - **Config storage**: `~/.supurr/` contains `credentials.json`, `configs/`, and `cache/`
+- **Credential resolution**: Bot reads `~/.supurr/credentials.json` at runtime (v0.3.5+). Use `supurr init` to set/switch wallets.
 - **Troubleshooting**: See → [references/troubleshooting.md](references/troubleshooting.md)
 
 ---

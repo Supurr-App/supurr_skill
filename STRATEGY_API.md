@@ -320,6 +320,29 @@ The bot reads a JSON config file. Your strategy maps to a section:
 
 > **⚠️ IMPORTANT — Asset ID Required**: The `index` field is Hyperliquid's internal market index (e.g. `3` for BTC, `4` for ETH). You **must** know this value beforehand — it is **not** auto-resolved. Query `POST https://api.hyperliquid.xyz/info` with `{"type": "meta"}` to get the full `universe` array with all asset indices.
 
+### Supported Market Types
+
+Your strategy automatically works on all Hyperliquid market types — the engine abstracts this away via the `Market` enum:
+
+| Market Type | `type` field | Key Fields | Notes |
+|---|---|---|---|
+| **Perp** | `"perp"` | `base`, `index` | Standard perpetuals (BTC=0, ETH=1, etc.) |
+| **Spot** | `"spot"` | `base`, `index` | Spot markets (e.g. HYPE=10107) |
+| **HIP-3** | `"hip3"` | `base`, `dex`, `dex_index`, `asset_index` | Builder-deployed sub-DEX perps |
+| **Outcome** | `"outcome"` | `name`, `outcome_id`, `side` | Prediction markets (testnet-only). Side: 0=Yes, 1=No |
+
+Outcome market config example:
+
+```json
+"markets": [{
+  "exchange": "hyperliquid",
+  "type": "outcome",
+  "name": "BTC > 69070",
+  "outcome_id": 516,
+  "side": 0
+}]
+```
+
 ---
 
 ## E2E: Build & Run
@@ -405,6 +428,46 @@ cargo build --release
 ```bash
 supurr dev run -c config-mystrategy.json
 ```
+
+---
+
+## Upstream Updates
+
+When you add a custom strategy, you modify **3 files** with a combined **~5 lines** of insertions. Here's the exact integration surface:
+
+| File | What You Add | Location |
+|---|---|---|
+| `Cargo.toml` | 1 workspace member + 1 workspace dep | `members = [...]` array, `[workspace.dependencies]` section |
+| `crates/bot-engine/Cargo.toml` | 1 optional dep + extend `native` feature | `[dependencies]` section, `native = [...]` list |
+| `crates/bot-engine/src/config.rs` | 1 import + 1 `else if` branch | Top imports, `build_strategy()` function |
+
+### Pulling Upstream Updates
+
+Because the insertions are **append-only** at stable locations (end of arrays, before `else` fallback), upstream updates almost never conflict:
+
+```bash
+# Stash your strategy changes
+git stash
+
+# Pull latest upstream
+git pull --rebase origin main
+
+# Re-apply your changes
+git stash pop
+
+# If conflict (rare): resolve the 3 files, rebuild
+cargo build --release
+```
+
+> **For AI agents:** The `build_strategy()` function uses an `if/else if/else` chain. Your strategy branch goes **before the final `else`** block (the `Unknown strategy type` fallback at the bottom). Upstream adds new built-in strategies to different branches of this chain, so conflicts are structurally unlikely.
+
+### Conflict-Free Design
+
+The bot's config system is designed to minimize integration friction:
+
+- **`#[serde(flatten)]`** on `BotConfig.extra` auto-captures any JSON key not matching built-in fields → your strategy config section just works
+- **`custom_config("name")`** deserializes your section into a typed struct → no changes to `BotConfig` struct needed
+- **Optional deps + feature flags** keep your strategy isolated from cross-compilation (WASM builds etc.)
 
 ---
 
