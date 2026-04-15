@@ -331,6 +331,9 @@ Your strategy automatically works on all Hyperliquid market types — the engine
 | **HIP-3** | `"hip3"` | `base`, `dex`, `dex_index`, `asset_index` | Builder-deployed sub-DEX perps |
 | **Outcome** | `"outcome"` | `name`, `outcome_id`, `side` | Prediction markets (testnet-only). Side: 0=Yes, 1=No |
 
+> [!NOTE]
+> Outcome configs must use `environment: "testnet"`. Hyperliquid prediction markets are not available on mainnet.
+
 Outcome market config example:
 
 ```json

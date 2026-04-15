@@ -1,6 +1,6 @@
 # Hyperliquid Supurr Skill
 
-> Build custom trading strategies in Rust, backtest, deploy, and monitor bots on Hyperliquid. Supports Grid, DCA, Spot-Perp Arbitrage, and custom user-authored strategies across Native Perps, Spot markets (USDC/USDH), and HIP-3 sub-DEXes.
+> Build custom trading strategies in Rust, backtest, paper trade, deploy, and monitor bots on Hyperliquid. Supports Grid, DCA, Spot-Perp Arbitrage, and custom user-authored strategies across Native Perps, Spot markets (USDC/USDE/USDT0/USDH), HIP-3 sub-DEXes, and prediction markets on testnet.
 
 ## Installation
 
@@ -27,11 +27,11 @@ The skill teaches AI assistants to use the CLI. The skill installer automaticall
 curl -fsSL https://cli.supurr.app/install | bash
 ```
 
-## Available Skills
+## Available Docs
 
 | Skill                                | Description                                                                   |
 | ------------------------------------ | ----------------------------------------------------------------------------- |
-| [SKILL.md](./SKILL.md)               | Complete CLI reference for backtesting, deploying, and monitoring bots        |
+| [SKILL.md](./SKILL.md)               | Complete CLI reference for backtesting, paper trading, deployment, monitoring, and dev workflows |
 | [STRATEGY_API.md](./STRATEGY_API.md) | Strategy authoring API — build custom Rust strategies with the Strategy trait |
 
 ## Quick Start
@@ -82,7 +82,8 @@ supurr-skill/
 │   ├── grid.md                   # Grid bot tutorial
 │   ├── arb.md                    # Spot-perp arb tutorial
 │   ├── dca.md                    # DCA tutorial
-│   └── custom-strategy.md        # Build your own strategy tutorial
+│   ├── custom-strategy.md        # Build your own strategy tutorial
+│   └── prediction-markets.md     # Manual outcome-market configs (testnet only)
 ├── SKILL.md                      # Main skill documentation (CLI + Strategy authoring)
 ├── STRATEGY_API.md               # Strategy authoring API contract
 └── README.md                     # This file

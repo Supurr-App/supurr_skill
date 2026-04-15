@@ -4,7 +4,14 @@
 
 > **Get address via**: `supurr whoami` — returns the configured wallet address.
 
-All endpoints use `POST https://api.hyperliquid.xyz/info` with `Content-Type: application/json`.
+Use `POST .../info` with `Content-Type: application/json`.
+
+| Environment | Base URL |
+| ----------- | -------- |
+| Mainnet     | `https://api.hyperliquid.xyz/info` |
+| Testnet     | `https://api.hyperliquid-testnet.xyz/info` |
+
+> Prediction markets (outcomes) are testnet-only, so use the testnet endpoint for `outcomeMeta`, outcome books, and outcome trading.
 
 ---
 
@@ -36,15 +43,18 @@ All endpoints use `POST https://api.hyperliquid.xyz/info` with `Content-Type: ap
 
 ---
 
-## HIP-3 Sub-DEXes
+## Common HIP-3 DEXes (Current CLI Defaults)
 
 | DEX    | Quote | Assets                        |
 | ------ | ----- | ----------------------------- |
 | `hyna` | USDE  | Crypto perps (BTC, ETH, HYPE) |
-| `xyz`  | USDE  | Stocks (AAPL, TSLA, NVDA)     |
-| `vntl` | USDE  | AI/tech tokens                |
-| `km`   | USDT  | Kinetiq Markets               |
+| `xyz`  | USDC  | Stocks (AAPL, TSLA, NVDA)     |
+| `vntl` | USDC  | AI/tech tokens                |
+| `km`   | USDC  | Kinetiq Markets               |
+| `flx`  | USDC  | Additional HIP-3 markets      |
 | `cash` | USDC  | Tech stocks                   |
+
+> Use `{"type": "perpDexs"}` as the authoritative source for which DEXes exist right now.
 
 ---
 

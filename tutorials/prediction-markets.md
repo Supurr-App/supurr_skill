@@ -64,7 +64,10 @@ for a in asks: print(f'ASK: {a[\"px\"]}')
 
 ## 3️⃣ Create Config Manually
 
-Prediction markets use a special `outcome` market type. The CLI's `supurr new dca` does not yet support outcome configs — you need to create the JSON manually.
+Prediction markets use a special `outcome` market type. The CLI's `supurr new dca` does not yet support outcome configs, so you need to create the JSON manually.
+
+> [!NOTE]
+> In the current V2 config format, each `markets[]` entry is the market object directly. Do not nest it under a separate `market` key.
 
 Create a file `prediction-dca.json`:
 
@@ -75,15 +78,13 @@ Create a file `prediction-dca.json`:
   "markets": [
     {
       "exchange": "hyperliquid",
-      "market": {
-        "type": "outcome",
-        "name": "BTC > 69136",
-        "outcome_id": 726,
-        "side": 0,
-        "instrument_meta": {
-          "tick_size": "0.00001",
-          "lot_size": "1"
-        }
+      "type": "outcome",
+      "name": "BTC > 69136",
+      "outcome_id": 726,
+      "side": 0,
+      "instrument_meta": {
+        "tick_size": "0.001",
+        "lot_size": "1"
       }
     }
   ],
@@ -94,11 +95,14 @@ Create a file `prediction-dca.json`:
     "dca_order_size": "20",
     "max_dca_orders": 2,
     "size_multiplier": "1.5",
-    "price_deviation_pct": "0.05",
+    "price_deviation_pct": "5",
     "deviation_multiplier": "1.0",
-    "take_profit_pct": "0.05",
-    "restart_after_tp": false,
-    "cooldown_seconds": 60
+    "take_profit_pct": "5",
+    "stop_loss": null,
+    "leverage": "1",
+    "max_leverage": "1",
+    "restart_on_complete": false,
+    "cooldown_period_secs": 60
   }
 }
 ```
@@ -108,11 +112,11 @@ Create a file `prediction-dca.json`:
 | Field | Value | Notes |
 |:---|:---|:---|
 | `environment` | `"testnet"` | **Must be testnet** — outcomes don't exist on mainnet |
-| `market.type` | `"outcome"` | Signals outcome market routing |
-| `market.name` | Any string | Human-readable label, not used for routing |
-| `market.outcome_id` | `726` | From the `outcomeMeta` API response |
-| `market.side` | `0` or `1` | `0` = Yes, `1` = No |
-| `tick_size` | `"0.00001"` | Standard for outcomes |
+| `markets[0].type` | `"outcome"` | Signals outcome market routing |
+| `markets[0].name` | Any string | Human-readable label, not used for routing |
+| `markets[0].outcome_id` | `726` | From the `outcomeMeta` API response |
+| `markets[0].side` | `0` or `1` | `0` = Yes, `1` = No |
+| `tick_size` | `"0.001"` | Use the live market metadata for the exact tick size |
 | `lot_size` | `"1"` | Minimum trade size = 1 unit |
 | `trigger_price` | `"0.85"` | Set above ask to fill instantly, or at your desired entry |
 | `base_order_size` | `"20"` | Size in outcome tokens (not USDC) |
@@ -149,9 +153,9 @@ cargo run --bin bot -- --config /path/to/prediction-dca.json
 The bot follows the standard DCA lifecycle:
 
 1. **Places base order** at trigger price (plus DCA safety orders below)
-2. **Base order fills** → TP order is placed at `avg_entry × (1 + take_profit_pct)`
+2. **Base order fills** → TP order is placed at `avg_entry × (1 + take_profit_pct / 100)`
 3. **If price drops** → DCA safety orders fill, averaging down the entry
-4. **TP hit** → All sold, cycle ends (or restarts if `restart_after_tp: true`)
+4. **TP hit** → All sold, cycle ends (or restarts if `restart_on_complete: true`)
 5. **On SIGINT/SIGTERM** → All open orders cancelled, clean exit
 
 ---
@@ -163,7 +167,7 @@ The bot follows the standard DCA lifecycle:
 - **Yes + No prices don't always sum to 1.0** — there's a spread, which is your trading edge
 - **Check liquidity** — some outcomes have thin books, meaning larger orders will slip
 - **Set trigger above ask for instant fill** — useful for testing the full DCA cycle
-- **Tick size 0.00001** is very granular — prices like 0.81667 are normal
+- **Use live metadata for tick size** — outcome markets can vary, so copy `tick_size` and `lot_size` from current market metadata
 
 ---
 

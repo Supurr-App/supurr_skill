@@ -54,7 +54,7 @@ supurr monitor --watch
 
 ```bash
 # 1. Create DCA config
-supurr new dca --asset BTC --trigger-price 95000 --base-order 0.001 --max-orders 5 --take-profit 0.02 --output btc-dca.json
+supurr new dca --asset BTC --trigger-price 95000 --base-order 0.001 --max-orders 5 --take-profit 2 --output btc-dca.json
 
 # 2. Deploy
 supurr deploy -c btc-dca.json

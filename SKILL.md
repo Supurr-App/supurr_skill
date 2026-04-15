@@ -1,6 +1,6 @@
 ---
 name: hyperliquid-supurr
-description: Build, backtest, paper trade, deploy, and monitor trading bots on Hyperliquid. Author custom strategies in Rust, or use built-in Grid, DCA, and Spot-Perp Arbitrage strategies across Native Perps, Spot markets (USDC/USDH), HIP-3 sub-DEXes, and Prediction Markets (testnet).
+description: Build, backtest, paper trade, deploy, and monitor trading bots on Hyperliquid. Author custom strategies in Rust, or use built-in Grid, DCA, and Spot-Perp Arbitrage strategies across Native Perps, Spot markets (USDC/USDE/USDT0/USDH), HIP-3 sub-DEXes, and Prediction Markets (testnet).
 ---
 
 # Hyperliquid Supurr Skill — Complete Command Reference
@@ -114,7 +114,7 @@ supurr new dca [options]    # Dollar-cost averaging
 | `-a, --asset <symbol>`  | `BTC`         | Base asset (BTC, ETH, HYPE, etc.)              |
 | `-o, --output <file>`   | `config.json` | Output filename                                |
 | `--type <type>`         | `native`      | Market type: native, spot, hip3                |
-| `--dex <dex>`           | —             | **Required for hip3**: hyna, xyz, km, vntl     |
+| `--dex <dex>`           | —             | **Required for hip3**: DEX slug from `perpDexs` (e.g., hyna, xyz, flx, cash) |
 | `--quote <quote>`       | —             | **Required for spot**: USDC, USDE, USDT0, USDH |
 | `--mode <mode>`         | `long`        | Grid mode: long, short, neutral                |
 | `--levels <n>`          | `20`          | Number of grid levels                          |
@@ -140,14 +140,18 @@ supurr new grid --asset HYPE --type spot --quote USDH --levels 3 --start-price 2
 supurr new grid --asset BTC --type hip3 --dex hyna --levels 4 --start-price 88000 --end-price 92000 --investment 100 --leverage 20
 ```
 
-#### HIP-3 DEXes
+#### Common HIP-3 DEXes (Current CLI Defaults)
 
 | DEX    | Quote | Assets                              |
 | ------ | ----- | ----------------------------------- |
 | `hyna` | USDE  | Crypto perps (BTC, ETH, HYPE, etc.) |
-| `xyz`  | USDE  | Stocks (AAPL, TSLA, etc.)           |
-| `km`   | USDT  | Kinetiq Markets                     |
-| `vntl` | USDE  | AI/tech tokens                      |
+| `xyz`  | USDC  | Stocks (AAPL, TSLA, etc.)           |
+| `km`   | USDC  | Kinetiq Markets                     |
+| `vntl` | USDC  | AI/tech tokens                      |
+| `flx`  | USDC  | Additional HIP-3 markets            |
+| `cash` | USDC  | Additional HIP-3 markets            |
+
+> `perpDexs` is the authoritative discovery source. The set of DEXes can change over time.
 
 ---
 
@@ -212,9 +216,9 @@ Generates a Dollar-Cost Averaging config that opens positions in steps when pric
 | `--dca-order <size>`         | `0.001`       | DCA order size in base asset                       |
 | `--max-orders <n>`           | `5`           | Max number of DCA orders                           |
 | `--size-multiplier <x>`      | `2.0`         | Size multiplier per DCA step                       |
-| `--deviation <pct>`          | `0.01`        | Price deviation % to trigger first DCA (0.01 = 1%) |
+| `--deviation <pct>`          | `1`           | Price deviation % to trigger first DCA (whole percent: 1 = 1%) |
 | `--deviation-multiplier <x>` | `1.0`         | Deviation multiplier for subsequent steps          |
-| `--take-profit <pct>`        | `0.02`        | Take profit % from avg entry (0.02 = 2%)           |
+| `--take-profit <pct>`        | `2`           | Take profit % from avg entry (whole percent: 2 = 2%) |
 | `--stop-loss <pnl>`          | —             | Optional stop loss as absolute PnL threshold       |
 | `--leverage <n>`             | `2`           | Leverage (1 for spot)                              |
 | `--restart`                  | false         | Restart cycle after take profit                    |
@@ -229,14 +233,17 @@ Generates a Dollar-Cost Averaging config that opens positions in steps when pric
 supurr new dca --asset BTC --trigger-price 95000
 
 # ETH DCA short with custom deviation
-supurr new dca --asset ETH --mode short --deviation 0.02
+supurr new dca --asset ETH --mode short --deviation 2
 
 # HYPE DCA with auto-restart
-supurr new dca --asset HYPE --restart --cooldown 120 --take-profit 0.03
+supurr new dca --asset HYPE --restart --cooldown 120 --take-profit 3
 
 # DCA on spot market
 supurr new dca --asset HYPE --type spot --quote USDC --trigger-price 25
 ```
+
+> [!NOTE]
+> Outcome DCA is supported by the engine on testnet, but `supurr new dca` does not generate outcome configs yet. Use [tutorials/prediction-markets.md](tutorials/prediction-markets.md) for the manual config shape.
 
 ---
 

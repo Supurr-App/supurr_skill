@@ -34,7 +34,7 @@ supurr init --address 0xYOUR_WALLET --api-wallet 0xYOUR_API_KEY
 
 ## 2️⃣ Choose Your Market
 
-Grid supports 4 market types. Pick based on what you want to trade:
+Grid CLI generation supports 3 market types. Outcome markets are supported by the engine, but they require manual config instead of `supurr new grid`.
 
 | Market Type     | When to Use                                 | Example                                 |
 | --------------- | ------------------------------------------- | --------------------------------------- |

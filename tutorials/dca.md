@@ -46,10 +46,13 @@ Trigger Price hit → Base Order → Price drops → DCA Order 1 → Drops more 
 | `dca-order`            | Size of each DCA step                 | Usually same as base order, or slightly larger.                        |
 | `max-orders`           | How many DCA steps max                | More orders = deeper averaging but larger total position.              |
 | `size-multiplier`      | Multiply DCA size at each step        | `1.0` = flat sizing. `2.0` = each DCA is 2x the previous (aggressive). |
-| `deviation`            | Price drop % to trigger first DCA     | `0.01` = 1% drop from entry triggers first DCA.                        |
+| `deviation`            | Price drop % to trigger first DCA     | `1` = 1% drop from entry triggers first DCA.                           |
 | `deviation-multiplier` | Widen gaps between DCAs               | `1.0` = equal spacing. `1.5` = each gap 50% wider than previous.       |
-| `take-profit`          | % above avg entry to close            | `0.02` = close at 2% profit from averaged entry.                       |
+| `take-profit`          | % above avg entry to close            | `2` = close at 2% profit from averaged entry.                          |
 | `stop-loss`            | Absolute PnL to cut losses            | Optional hard stop. Omit to rely only on DCA depth.                    |
+
+> [!NOTE]
+> DCA percentage inputs use whole percent values. Use `1` for 1% and `2` for 2%, not `0.01` and `0.02`.
 
 ### Position Size Planning
 
@@ -86,8 +89,8 @@ supurr new dca \
   --dca-order 0.001 \
   --max-orders 5 \
   --size-multiplier 2.0 \
-  --deviation 0.01 \
-  --take-profit 0.02 \
+  --deviation 1 \
+  --take-profit 2 \
   --leverage 5 \
   --restart \
   --cooldown 120 \
@@ -105,8 +108,8 @@ supurr new dca \
   --dca-order 0.01 \
   --max-orders 3 \
   --size-multiplier 1.5 \
-  --deviation 0.02 \
-  --take-profit 0.03 \
+  --deviation 2 \
+  --take-profit 3 \
   --leverage 3 \
   --output eth-dca-short.json
 ```
@@ -122,8 +125,8 @@ supurr new dca \
   --base-order 10 \
   --dca-order 10 \
   --max-orders 5 \
-  --deviation 0.03 \
-  --take-profit 0.05 \
+  --deviation 3 \
+  --take-profit 5 \
   --output hype-dca-spot.json
 ```
 
