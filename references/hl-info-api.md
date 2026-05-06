@@ -11,7 +11,7 @@ Use `POST .../info` with `Content-Type: application/json`.
 | Mainnet     | `https://api.hyperliquid.xyz/info` |
 | Testnet     | `https://api.hyperliquid-testnet.xyz/info` |
 
-> Prediction markets (outcomes) are testnet-only, so use the testnet endpoint for `outcomeMeta`, outcome books, and outcome trading.
+> Prediction markets (outcomes) are environment-specific. Query `outcomeMeta` on the same environment you plan to trade.
 
 ---
 
@@ -23,6 +23,7 @@ Use `POST .../info` with `Content-Type: application/json`.
 | Sub-DEX Prices   | `{"type": "allMids", "dex": "hyna"}` |
 | Perp Metadata    | `{"type": "metaAndAssetCtxs"}`       |
 | Spot Metadata    | `{"type": "spotMeta"}`               |
+| Outcome Metadata | `{"type": "outcomeMeta"}`            |
 | L2 Order Book    | `{"type": "l2Book", "coin": "BTC"}`  |
 | List HIP-3 DEXes | `{"type": "perpDexs"}`               |
 

@@ -329,10 +329,10 @@ Your strategy automatically works on all Hyperliquid market types — the engine
 | **Perp** | `"perp"` | `base`, `index` | Standard perpetuals (BTC=0, ETH=1, etc.) |
 | **Spot** | `"spot"` | `base`, `index` | Spot markets (e.g. HYPE=10107) |
 | **HIP-3** | `"hip3"` | `base`, `dex`, `dex_index`, `asset_index` | Builder-deployed sub-DEX perps |
-| **Outcome** | `"outcome"` | `name`, `outcome_id`, `side` | Prediction markets (testnet-only). Side: 0=Yes, 1=No |
+| **Outcome** | `"outcome"` | `name`, `outcome_id`, `side` | HIP-4 prediction markets. Side: 0=Yes, 1=No |
 
 > [!NOTE]
-> Outcome configs must use `environment: "testnet"`. Hyperliquid prediction markets are not available on mainnet.
+> Outcome configs must use the same environment where `outcomeMeta` returns the target market. Do not infer outcome availability from perp metadata.
 
 Outcome market config example:
 

@@ -1,6 +1,6 @@
 ---
 name: hyperliquid-supurr
-description: Build, backtest, paper trade, deploy, and monitor trading bots on Hyperliquid. Author custom strategies in Rust, or use built-in Grid, DCA, and Spot-Perp Arbitrage strategies across Native Perps, Spot markets (USDC/USDE/USDT0/USDH), HIP-3 sub-DEXes, and Prediction Markets (testnet).
+description: Build, backtest, paper trade, deploy, monitor, stop, and copy trading bots on Hyperliquid. Author custom strategies in Rust, or use built-in Grid, DCA, and Spot-Perp Arbitrage strategies across Native Perps, Spot markets (USDC/USDE/USDT0/USDH), HIP-3 sub-DEXes, and HIP-4 prediction markets.
 ---
 
 # Hyperliquid Supurr Skill — Complete Command Reference
@@ -32,6 +32,16 @@ description: Build, backtest, paper trade, deploy, and monitor trading bots on H
 | `supurr dev build`     | Build bot from source           |
 | `supurr dev run`       | Run dev-built bot               |
 | `supurr dev backtest`  | Backtest with dev-built engine  |
+
+---
+
+## Agent Product Pointers
+
+| User asks about | Read before answering | Agent job |
+| --- | --- | --- |
+| Prediction markets, outcome markets, HIP-4 | [Prediction Markets](tutorials/prediction-markets.md) | Validate live `outcomeMeta`, keep prices inside `0..1`, use `USDH` spot balance, no leverage. |
+| FOMO, opportunities, copyable bots, active bots | [Bot Discovery](references/bot-discovery.md) | Fetch live bot surfaces when relevant and suggest copy candidates only as risk-aware options. |
+| Missing funds, wallet connection, transfers, builder approval | [User Action Intents](references/user-action-intents.md) | Emit a machine-readable `user_action_required` object for frontend/Telegram rendering. |
 
 ---
 
@@ -105,7 +115,7 @@ supurr new dca [options]    # Dollar-cost averaging
 | `native`  | USDC     | —         | `--asset BTC`                           |
 | `spot`    | Variable | `--quote` | `--asset HYPE --type spot --quote USDC` |
 | `hip3`    | Per-DEX  | `--dex`   | `--asset BTC --type hip3 --dex hyna`    |
-| `outcome` | USDC     | Manual config | ⚠️ Testnet only — see [Prediction Markets tutorial](tutorials/prediction-markets.md) |
+| `outcome` | USDH     | `--outcome-id` | `--asset BTC --type outcome --outcome-id 2 --side yes` |
 
 #### Grid Options
 
@@ -113,9 +123,11 @@ supurr new dca [options]    # Dollar-cost averaging
 | ----------------------- | ------------- | ---------------------------------------------- |
 | `-a, --asset <symbol>`  | `BTC`         | Base asset (BTC, ETH, HYPE, etc.)              |
 | `-o, --output <file>`   | `config.json` | Output filename                                |
-| `--type <type>`         | `native`      | Market type: native, spot, hip3                |
+| `--type <type>`         | `native`      | Market type: native, spot, hip3, outcome       |
 | `--dex <dex>`           | —             | **Required for hip3**: DEX slug from `perpDexs` (e.g., hyna, xyz, flx, cash) |
 | `--quote <quote>`       | —             | **Required for spot**: USDC, USDE, USDT0, USDH |
+| `--outcome-id <id>`     | —             | **Required for outcome**: ID from live `outcomeMeta` |
+| `--side <side>`         | `yes`         | Outcome side: `yes`/`no` or `0`/`1`            |
 | `--mode <mode>`         | `long`        | Grid mode: long, short, neutral                |
 | `--levels <n>`          | `20`          | Number of grid levels                          |
 | `--start-price <price>` | —             | Grid start price                               |
@@ -138,6 +150,9 @@ supurr new grid --asset HYPE --type spot --quote USDH --levels 3 --start-price 2
 
 # HIP-3 (hyna:BTC)
 supurr new grid --asset BTC --type hip3 --dex hyna --levels 4 --start-price 88000 --end-price 92000 --investment 100 --leverage 20
+
+# HIP-4 Outcome (BTC prediction market, Yes side)
+supurr new grid --asset BTC --type outcome --outcome-id 2 --side yes --levels 5 --start-price 0.27 --end-price 0.32 --investment 80
 ```
 
 #### Common HIP-3 DEXes (Current CLI Defaults)
@@ -243,7 +258,7 @@ supurr new dca --asset HYPE --type spot --quote USDC --trigger-price 25
 ```
 
 > [!NOTE]
-> Outcome DCA is supported by the engine on testnet, but `supurr new dca` does not generate outcome configs yet. Use [tutorials/prediction-markets.md](tutorials/prediction-markets.md) for the manual config shape.
+> Outcome DCA is supported by the engine where `outcomeMeta` returns live markets, but `supurr new dca` does not generate outcome configs yet. Use [tutorials/prediction-markets.md](tutorials/prediction-markets.md) for the manual config shape.
 
 ---
 
@@ -605,6 +620,8 @@ Runs three independent steps (one failing won't block others):
 | [Arb Spot Resolution](references/arb-spot-resolution.md) | Full U-prefix table, resolution logic, edge cases      |
 | [Troubleshooting](references/troubleshooting.md)         | Common errors and fixes                                |
 | [Complete Workflows](references/workflows.md)            | End-to-end Grid, Arb, DCA, HIP-3 workflows             |
+| [Bot Discovery](references/bot-discovery.md)             | Active bot surfaces, copy-bot route, recommendation rules |
+| [User Action Intents](references/user-action-intents.md) | Machine-readable user-action schema for UI/Telegram handoff |
 
 ## Strategy Authoring References
 
@@ -629,5 +646,5 @@ Runs three independent steps (one failing won't block others):
 - [Grid Bot Tutorial](tutorials/grid.md) — Range trading with buy/sell grids
 - [Arb Bot Tutorial](tutorials/arb.md) — Market-neutral spot-perp arbitrage
 - [DCA Bot Tutorial](tutorials/dca.md) — Dollar-cost averaging with auto-restart
-- [Prediction Markets](tutorials/prediction-markets.md) — Trade binary outcomes on testnet ⚠️
+- [Prediction Markets](tutorials/prediction-markets.md) — Trade binary HIP-4 outcomes using live `outcomeMeta`
 - [Build Your Own Strategy](tutorials/custom-strategy.md) — Custom strategy from scratch

@@ -1,6 +1,6 @@
 # Hyperliquid Supurr Skill
 
-> Build custom trading strategies in Rust, backtest, paper trade, deploy, and monitor bots on Hyperliquid. Supports Grid, DCA, Spot-Perp Arbitrage, and custom user-authored strategies across Native Perps, Spot markets (USDC/USDE/USDT0/USDH), HIP-3 sub-DEXes, and prediction markets on testnet.
+> Build custom trading strategies in Rust, backtest, paper trade, deploy, and monitor bots on Hyperliquid. Supports Grid, DCA, Spot-Perp Arbitrage, and custom user-authored strategies across Native Perps, Spot markets (USDC/USDE/USDT0/USDH), HIP-3 sub-DEXes, and HIP-4 prediction markets.
 
 ## Installation
 
@@ -72,6 +72,8 @@ supurr-skill/
 │   ├── types.md                  # Core types (Price, Qty, Market, etc.)
 │   ├── hl-info-api.md            # Hyperliquid Info API reference
 │   ├── arb-spot-resolution.md    # Spot token U-prefix resolution
+│   ├── bot-discovery.md          # Active bot discovery and copy rules
+│   ├── user-action-intents.md    # Frontend/Telegram action handoff schema
 │   ├── workflows.md              # End-to-end CLI workflows
 │   └── troubleshooting.md        # Common errors and fixes
 ├── templates/
@@ -83,7 +85,7 @@ supurr-skill/
 │   ├── arb.md                    # Spot-perp arb tutorial
 │   ├── dca.md                    # DCA tutorial
 │   ├── custom-strategy.md        # Build your own strategy tutorial
-│   └── prediction-markets.md     # Manual outcome-market configs (testnet only)
+│   └── prediction-markets.md     # HIP-4 outcome-market configs
 ├── SKILL.md                      # Main skill documentation (CLI + Strategy authoring)
 ├── STRATEGY_API.md               # Strategy authoring API contract
 └── README.md                     # This file

@@ -5,7 +5,7 @@
 # =============================================================================
 set -e
 
-REPO="https://github.com/Supurr-App/supurr-skill"
+REPO="https://github.com/Supurr-App/Hyperliquid-Supurr-Skill"
 
 # ANSI colors
 BOLD=$'\033[1m'
@@ -166,4 +166,3 @@ warn "Restart your AI tool(s) to load the skill."
 printf "\n"
 info "Re-run anytime to update: ${CYAN}curl -fsSL https://cli.supurr.app/skill-install | bash${NC}"
 printf "\n"
-
